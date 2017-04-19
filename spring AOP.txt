@@ -1,0 +1,199 @@
+1)package com.programs.spring.service;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ExampleService {
+
+  public void simpleMethod() {
+    System.out.println("Inside simpleMethod");
+  }
+
+  public Object methodReturnsValue() {
+    System.out.println("Inside methodReturnsValue");
+    return new String("Hello from methodReturnsValue");
+  }
+
+  public void methodThrowsException() {
+    System.out.println("Inside methodThrowsException");
+    throw new RuntimeException("Exception from methodThrowsException");
+  }
+
+  public Object testAroundReturningResult() {
+    System.out.println("Inside testAroundReturningResult");
+    return new String("Hello from aroundReturningResult");
+  }
+
+  public void testAroundThrowingException() throws Exception {
+    System.out.println("Inside testAroundThrowingException");
+    throw new RuntimeException("Exception from testAroundThrowingException");
+  }
+
+}
+
+
+
+
+
+2)Before advice
+
+package com.programs.spring.aop;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+
+@Aspect
+public class LoggingAspect {
+
+  @Before(
+  "execution(* com.programs.spring.service.ExampleService.simpleMethod(..))"
+  )
+  public void beforeExecution(JoinPoint jp) {
+    System.out.println("Before method: " + jp.getSignature().getName()
+        + ". Class: " + jp.getTarget().getClass().getSimpleName());
+  }
+
+}
+
+
+
+
+3)AfterReturning advice
+
+package com.programs.spring.aop;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Aspect;
+
+@Aspect
+public class LoggingAspect {
+
+  @AfterReturning(
+   pointcut = "execution(* com.programs.spring.service.ExampleService.methodReturnsValue(..))",
+   returning = "result"
+  )
+  public void afterReturningExecution(JoinPoint jp, Object result) {
+    System.out.println("After returning method: "
+      + jp.getSignature().getName() + ". Class: "
+      + jp.getTarget().getClass().getSimpleName());
+      System.out.println("Result returned: " + result);
+  }
+
+}
+
+
+
+
+
+4)AfterThrowing advice
+
+package com.programs.spring.aop;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Aspect;
+
+@Aspect
+public class LoggingAspect {
+
+  @AfterThrowing(
+   pointcut = "execution(* com.programs.spring.service.ExampleService.methodThrowsException(..))",
+   throwing = "ex"
+  )
+  public void afterThrowingExecution(JoinPoint jp, Exception ex) {
+    System.out.println("After throwing method: "
+        + jp.getSignature().getName() + ". Class: "
+        + jp.getTarget().getClass().getSimpleName());
+    System.out.println("Exception: " + ex.getMessage());
+  }
+
+}
+
+
+
+5)After advice
+
+package com.programs.spring.aop;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Aspect;
+
+@Aspect
+public class LoggingAspect {
+
+  @After(
+  "execution(* com.programs.spring.service.ExampleService.simpleMethod(..))"
+  )
+  public void afterExecution(JoinPoint jp) {
+    System.out.println("After method: " + jp.getSignature().getName()
+        + ". Class: " + jp.getTarget().getClass().getSimpleName());
+  }
+
+}
+
+
+
+
+6)Around advice
+
+package com.programs.spring.aop;
+
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+
+@Aspect
+public class LoggingAspect {
+
+  @Around(
+  "execution(* com.programs.spring.service.ExampleService.testAround*(..))"
+  )
+  public Object aroundExecution(ProceedingJoinPoint jp) throws Exception {
+
+    System.out.println("Before method: " + jp.getSignature().getName()
+        + ". Class: " + jp.getTarget().getClass().getSimpleName());
+
+    try {
+      // Proceed with method invocation
+      Object result = jp.proceed();
+
+      System.out.println("Returning: " + result);
+      return result;
+    } catch (Throwable e) {
+      // Log error
+      System.out.println("Error: " + e.getMessage());
+      // Throw exception to the caller
+      throw new Exception("Error", e);
+    }
+
+  }
+
+}
+
+
+
+
+7)spring-config.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context-3.0.xsd
+  http://www.springframework.org/schema/aop
+  http://www.springframework.org/schema/aop/spring-aop.xsd">
+    
+  <context:component-scan base-package="com.programs.spring" />
+    
+  <aop:aspectj-autoproxy />
+   
+  <bean id="loggingAspect" class="com.programs.spring.aop.LoggingAspect">
+  </bean>
+
+</beans>
