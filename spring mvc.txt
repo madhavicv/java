@@ -1,0 +1,94 @@
+1)GoodMorningController.java
+
+package controller;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.AbstractController;
+
+public class GoodMorningController extends AbstractController{
+
+	@Override
+	protected ModelAndView handleRequestInternal(HttpServletRequest request,
+		HttpServletResponse response) throws Exception {
+
+		ModelAndView model = new ModelAndView("GoodMorningPage");
+		model.addObject("msg", "GoodMorning");
+
+		return model;
+	}
+}
+
+
+
+2)GoodMorningPage.jsp
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<html>
+<body>
+	<h1>Spring MVC Good Morning Example</h1>
+
+	<h2>${msg}</h2>
+</body>
+</html>
+
+
+
+3)mvc-dispatcher-servlet.xml
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean name="/welcome.htm"
+		class="GoodMorningController" />
+
+    <bean id="viewResolver"
+    	class="org.springframework.web.servlet.view.InternalResourceViewResolver" >
+        <property name="prefix">
+            <value>/WEB-INF/pages/</value>
+        </property>
+        <property name="suffix">
+            <value>.jsp</value>
+        </property>
+    </bean>
+
+</beans>
+
+
+
+
+
+4)web.xml
+
+<web-app id="WebApp_ID" version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+	http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+  <display-name>Spring Web MVC Application</display-name>
+
+  <servlet>
+  	<servlet-name>mvc-dispatcher</servlet-name>
+        <servlet-class>
+             org.springframework.web.servlet.DispatcherServlet
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+ 	<servlet-name>mvc-dispatcher</servlet-name>
+        <url-pattern>*.htm</url-pattern>
+  </servlet-mapping>
+
+</web-app>
+
+
+
+
+
+
+
